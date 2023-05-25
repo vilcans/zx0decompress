@@ -30,6 +30,7 @@ use std::io::Read;
 
 struct Context<'a> {
     source: &'a mut dyn Read,
+    max_output_size: usize,
     last_offset: usize,
     /// The number of valid bits in `bit_value`.
     bit_count: u8,
@@ -41,6 +42,7 @@ impl<'a> Context<'a> {
     pub fn new(source: &'a mut dyn Read) -> Self {
         Self {
             source,
+            max_output_size: 0x20000,
             last_offset: 1,
             bit_count: 0,
             bit_value: 0,
@@ -152,7 +154,7 @@ pub fn decompress(source: &mut dyn Read) -> Result<Vec<u8>, DecompressError> {
     let mut context = Context::new(source);
     let mut output = Vec::new();
     let mut state = State::CopyLiterals;
-    loop {
+    while output.len() < context.max_output_size {
         state = context.next_step(state, &mut output)?;
         if let State::Done = state {
             break;
