@@ -1,7 +1,8 @@
+//! Command-line tool to decompresses a file in ZX0 format.
+
 use clap::Parser;
 use std::path::PathBuf;
 
-/// Decompresses a file in ZX0 format.
 #[derive(Parser, Debug)]
 struct Cli {
     /// Compressed file to read from

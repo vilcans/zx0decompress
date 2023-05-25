@@ -1,3 +1,28 @@
+//! Decompress data in zx0 format.
+//!
+//! ## Examples
+//!
+//! Decompress from file into a `Vec<u8>`:
+//!
+//! ```no_run
+//! # fn test() -> std::io::Result<()> {
+//! let filename = "something.zx0";
+//! let mut source = std::fs::File::open(filename)?;
+//! let content = zx0decompress::decompress(&mut source)?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! Decompress from a byte slice into a `Vec<u8>`:
+//!
+//! ```
+//! let source = [
+//!     0x1fu8, 0x41, 0x42, 0x52, 0x41, 0x20, 0xf6, 0xab, 0x43, 0x44, 0xf5, 0xf2, 0x55, 0x58,
+//! ];
+//! let result = zx0decompress::decompress(&mut source.as_ref()).unwrap();
+//! assert_eq!(&result, b"ABRA ABRACADABRA");
+//! ```
+
 use std::io::Read;
 
 struct Context<'a> {
@@ -18,7 +43,8 @@ impl<'a> Context<'a> {
             bit_value: 0,
         }
     }
-    pub fn next_step(&mut self, state: State, output: &mut Vec<u8>) -> std::io::Result<State> {
+    /// Executes the next step of the compression. Returns the next state.
+    fn next_step(&mut self, state: State, output: &mut Vec<u8>) -> std::io::Result<State> {
         let classic_mode = false;
         match state {
             State::CopyLiterals => {
@@ -82,6 +108,7 @@ impl<'a> Context<'a> {
         self.bit_count -= 1;
         Ok(bit)
     }
+
     fn read_interlaced_elias_gamma(&mut self, inverted: bool) -> std::io::Result<usize> {
         let mut value = 1;
         while !self.read_bit()? {
@@ -89,6 +116,7 @@ impl<'a> Context<'a> {
         }
         Ok(value)
     }
+
     fn write_bytes(&mut self, offset: usize, length: usize, output: &mut Vec<u8>) {
         for _ in 0..length {
             let b = output[output.len() - offset];
@@ -105,6 +133,8 @@ enum State {
     Done,
 }
 
+/// Reads data from the supplied `source` which is [`Read`] and return it as a `Vec`.
+/// Any failures to read from `source` will be returned.
 pub fn decompress(source: &mut dyn Read) -> std::io::Result<Vec<u8>> {
     let mut context = Context::new(source);
     let mut output = Vec::new();
