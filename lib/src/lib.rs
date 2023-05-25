@@ -2,21 +2,19 @@ use std::io::Read;
 
 struct Context<'a> {
     source: &'a mut dyn Read,
-    backtrack: bool,
     last_offset: usize,
-    last_byte: u8,
-    bit_mask: u8,
-    bit_value: u8,
+    /// The number of valid bits in `bit_value`.
+    bit_count: u8,
+    /// Current bit data. The most significant bit contains the next bit that will be read.
+    bit_value: u16,
 }
 
 impl<'a> Context<'a> {
     pub fn new(source: &'a mut dyn Read) -> Self {
         Self {
             source,
-            backtrack: false,
             last_offset: 1,
-            last_byte: 0,
-            bit_mask: 0,
+            bit_count: 0,
             bit_value: 0,
         }
     }
@@ -49,9 +47,13 @@ impl<'a> Context<'a> {
                 if high == 256 {
                     return Ok(State::Done);
                 }
-                let sub = self.read_byte()? >> 1;
-                self.last_offset = (high << 7) - sub as usize;
-                self.backtrack = true;
+                let second_byte = self.read_byte()?;
+                self.last_offset = (high << 7) - (second_byte >> 1) as usize;
+
+                // Make the lowest bit in second byte be the next bit to read
+                self.bit_value = (self.bit_value >> 1) | ((second_byte as u16) << 15);
+                self.bit_count += 1;
+
                 let length = self.read_interlaced_elias_gamma(false)? + 1;
                 self.write_bytes(self.last_offset, length, output);
                 if self.read_bit()? {
@@ -67,24 +69,18 @@ impl<'a> Context<'a> {
     fn read_byte(&mut self) -> std::io::Result<u8> {
         let mut buf = [0u8];
         self.source.read_exact(&mut buf)?;
-        self.last_byte = buf[0];
-        Ok(self.last_byte)
+        Ok(buf[0])
     }
 
     fn read_bit(&mut self) -> std::io::Result<bool> {
-        if self.backtrack {
-            self.backtrack = false;
-            let bit = self.last_byte & 1 != 0;
-            Ok(bit)
-        } else {
-            self.bit_mask >>= 1;
-            if self.bit_mask == 0 {
-                self.bit_mask = 0x80;
-                self.bit_value = self.read_byte()?;
-            }
-            let bit = (self.bit_value & self.bit_mask) != 0;
-            Ok(bit)
+        if self.bit_count == 0 {
+            self.bit_value = (self.read_byte()? as u16) << 8;
+            self.bit_count = 8;
         }
+        let bit = self.bit_value & 0x8000 != 0;
+        self.bit_value <<= 1;
+        self.bit_count -= 1;
+        Ok(bit)
     }
     fn read_interlaced_elias_gamma(&mut self, inverted: bool) -> std::io::Result<usize> {
         let mut value = 1;
