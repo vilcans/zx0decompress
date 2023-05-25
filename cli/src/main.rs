@@ -2,6 +2,7 @@
 
 use clap::Parser;
 use std::path::PathBuf;
+use zx0decompress::DecompressError;
 
 #[derive(Parser, Debug)]
 struct Cli {
@@ -11,10 +12,11 @@ struct Cli {
     output: PathBuf,
 }
 
-fn execute(args: Cli) -> std::io::Result<()> {
+fn execute(args: Cli) -> Result<(), DecompressError> {
     let mut source = std::fs::File::open(args.input)?;
     let content = zx0decompress::decompress(&mut source)?;
-    std::fs::write(args.output, content)
+    std::fs::write(args.output, content)?;
+    Ok(())
 }
 
 fn main() {

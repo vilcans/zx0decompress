@@ -9,5 +9,6 @@ description = "Decompress files in the ZX0 compression format commonly used on 8
 repository = "https://github.com/vilcans/zx0decompress/lib"
 
 [dependencies]
+thiserror = "1.0.40"
 
 [dev-dependencies]

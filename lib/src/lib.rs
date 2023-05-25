@@ -5,7 +5,7 @@
 //! Decompress from file into a `Vec<u8>`:
 //!
 //! ```no_run
-//! # fn test() -> std::io::Result<()> {
+//! # fn test() -> Result<(), zx0decompress::DecompressError> {
 //! let filename = "something.zx0";
 //! let mut source = std::fs::File::open(filename)?;
 //! let content = zx0decompress::decompress(&mut source)?;
@@ -23,6 +23,9 @@
 //! assert_eq!(&result, b"ABRA ABRACADABRA");
 //! ```
 
+mod error;
+
+pub use error::DecompressError;
 use std::io::Read;
 
 struct Context<'a> {
@@ -44,7 +47,7 @@ impl<'a> Context<'a> {
         }
     }
     /// Executes the next step of the compression. Returns the next state.
-    fn next_step(&mut self, state: State, output: &mut Vec<u8>) -> std::io::Result<State> {
+    fn next_step(&mut self, state: State, output: &mut Vec<u8>) -> Result<State, DecompressError> {
         let classic_mode = false;
         match state {
             State::CopyLiterals => {
@@ -61,7 +64,7 @@ impl<'a> Context<'a> {
             }
             State::CopyFromLastOffset => {
                 let length = self.read_interlaced_elias_gamma(false)?;
-                self.write_bytes(self.last_offset, length, output);
+                self.write_bytes(self.last_offset, length, output)?;
                 if self.read_bit()? {
                     Ok(State::CopyFromNewOffset)
                 } else {
@@ -81,7 +84,7 @@ impl<'a> Context<'a> {
                 self.bit_count += 1;
 
                 let length = self.read_interlaced_elias_gamma(false)? + 1;
-                self.write_bytes(self.last_offset, length, output);
+                self.write_bytes(self.last_offset, length, output)?;
                 if self.read_bit()? {
                     Ok(State::CopyFromNewOffset)
                 } else {
@@ -92,13 +95,13 @@ impl<'a> Context<'a> {
         }
     }
 
-    fn read_byte(&mut self) -> std::io::Result<u8> {
+    fn read_byte(&mut self) -> Result<u8, DecompressError> {
         let mut buf = [0u8];
         self.source.read_exact(&mut buf)?;
         Ok(buf[0])
     }
 
-    fn read_bit(&mut self) -> std::io::Result<bool> {
+    fn read_bit(&mut self) -> Result<bool, DecompressError> {
         if self.bit_count == 0 {
             self.bit_value = (self.read_byte()? as u16) << 8;
             self.bit_count = 8;
@@ -109,7 +112,7 @@ impl<'a> Context<'a> {
         Ok(bit)
     }
 
-    fn read_interlaced_elias_gamma(&mut self, inverted: bool) -> std::io::Result<usize> {
+    fn read_interlaced_elias_gamma(&mut self, inverted: bool) -> Result<usize, DecompressError> {
         let mut value = 1;
         while !self.read_bit()? {
             value = (value << 1) | (self.read_bit()? ^ inverted) as usize;
@@ -117,12 +120,21 @@ impl<'a> Context<'a> {
         Ok(value)
     }
 
-    fn write_bytes(&self, offset: usize, length: usize, output: &mut Vec<u8>) {
+    fn write_bytes(
+        &self,
+        offset: usize,
+        length: usize,
+        output: &mut Vec<u8>,
+    ) -> Result<(), DecompressError> {
+        let Some(s) = output.len().checked_sub(offset) else {
+            return Err(DecompressError::InvalidLength);
+        };
+
         output.reserve(length);
-        let s = output.len() - offset;
         for i in 0..length {
             output.push(output[s + i]);
         }
+        Ok(())
     }
 }
 
@@ -136,7 +148,7 @@ enum State {
 
 /// Reads data from the supplied `source` which is [`Read`] and return it as a `Vec`.
 /// Any failures to read from `source` will be returned.
-pub fn decompress(source: &mut dyn Read) -> std::io::Result<Vec<u8>> {
+pub fn decompress(source: &mut dyn Read) -> Result<Vec<u8>, DecompressError> {
     let mut context = Context::new(source);
     let mut output = Vec::new();
     let mut state = State::CopyLiterals;
