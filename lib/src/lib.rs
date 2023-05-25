@@ -117,10 +117,11 @@ impl<'a> Context<'a> {
         Ok(value)
     }
 
-    fn write_bytes(&mut self, offset: usize, length: usize, output: &mut Vec<u8>) {
-        for _ in 0..length {
-            let b = output[output.len() - offset];
-            output.push(b);
+    fn write_bytes(&self, offset: usize, length: usize, output: &mut Vec<u8>) {
+        output.reserve(length);
+        let s = output.len() - offset;
+        for i in 0..length {
+            output.push(output[s + i]);
         }
     }
 }
