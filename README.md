@@ -20,21 +20,23 @@ cargo install --path cli
 Then you can get help with the command `zx0dec --help`:
 
 ```
-Decompresses a file in ZX0 format
-
-Usage: zx0dec <INPUT> <OUTPUT>
+Usage: zx0dec [OPTIONS] <INPUT> <OUTPUT>
 
 Arguments:
   <INPUT>   Compressed file to read from
   <OUTPUT>  File to write the decompressed data to
 
 Options:
-  -h, --help  Print help
+  -c, --classic                 Treat input as old (v1) file format
+  -m, --max-output-size <SIZE>  Maximum number of decompressed bytes to write
+  -h, --help                    Print help
 ```
 
 ## Usage as a library
 
 Just call `zx0decompress::decompress` with any object that implements [`std::io::Read`](https://doc.rust-lang.org/std/io/trait.Read.html).
+
+You may also want to specify settings other than the default. For that, call `zx0decompress::decompress_with_settings`.
 
 ### Examples
 

@@ -28,9 +28,27 @@ mod error;
 pub use error::DecompressError;
 use std::io::Read;
 
+/// Decompression settings
+#[derive(Clone)]
+pub struct Settings {
+    /// Decompress classic file format (v1)
+    pub classic_mode: bool,
+    /// Limit the output to this number of bytes.
+    pub max_output_size: usize,
+}
+
+impl Default for Settings {
+    fn default() -> Self {
+        Self {
+            classic_mode: false,
+            max_output_size: usize::MAX,
+        }
+    }
+}
+
 struct Context<'a> {
     source: &'a mut dyn Read,
-    max_output_size: usize,
+    settings: Settings,
     last_offset: usize,
     /// The number of valid bits in `bit_value`.
     bit_count: u8,
@@ -39,10 +57,10 @@ struct Context<'a> {
 }
 
 impl<'a> Context<'a> {
-    pub fn new(source: &'a mut dyn Read) -> Self {
+    pub fn new(source: &'a mut dyn Read, settings: Settings) -> Self {
         Self {
             source,
-            max_output_size: 0x20000,
+            settings,
             last_offset: 1,
             bit_count: 0,
             bit_value: 0,
@@ -50,7 +68,6 @@ impl<'a> Context<'a> {
     }
     /// Executes the next step of the compression. Returns the next state.
     fn next_step(&mut self, state: State, output: &mut Vec<u8>) -> Result<State, DecompressError> {
-        let classic_mode = false;
         match state {
             State::CopyLiterals => {
                 let length = self.read_interlaced_elias_gamma(false)?;
@@ -74,7 +91,7 @@ impl<'a> Context<'a> {
                 }
             }
             State::CopyFromNewOffset => {
-                let high = self.read_interlaced_elias_gamma(!classic_mode)?;
+                let high = self.read_interlaced_elias_gamma(!self.settings.classic_mode)?;
                 if high == 256 {
                     return Ok(State::Done);
                 }
@@ -148,13 +165,24 @@ enum State {
     Done,
 }
 
+/// Decompress data using the default settings.
 /// Reads data from the supplied `source` which is [`Read`] and return it as a `Vec`.
 /// Any failures to read from `source` will be returned.
 pub fn decompress(source: &mut dyn Read) -> Result<Vec<u8>, DecompressError> {
-    let mut context = Context::new(source);
+    decompress_with_settings(source, Settings::default())
+}
+
+/// Decompress data using the given settings.
+/// Reads data from the supplied `source` which is [`Read`] and return it as a `Vec`.
+/// Any failures to read from `source` will be returned.
+pub fn decompress_with_settings(
+    source: &mut dyn Read,
+    settings: Settings,
+) -> Result<Vec<u8>, DecompressError> {
+    let mut context = Context::new(source, settings.clone());
     let mut output = Vec::new();
     let mut state = State::CopyLiterals;
-    while output.len() < context.max_output_size {
+    while output.len() < settings.max_output_size {
         state = context.next_step(state, &mut output)?;
         if let State::Done = state {
             break;
