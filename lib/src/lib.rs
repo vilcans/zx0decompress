@@ -50,9 +50,8 @@ struct Context<'a> {
     source: &'a mut dyn Read,
     settings: Settings,
     last_offset: usize,
-    /// The number of valid bits in `bit_value`.
-    bit_count: u8,
     /// Current bit data. The most significant bit contains the next bit that will be read.
+    /// After the bit data, there is a bit set to 1 which is used as an end marker.
     bit_value: u16,
 }
 
@@ -62,8 +61,7 @@ impl<'a> Context<'a> {
             source,
             settings,
             last_offset: 1,
-            bit_count: 0,
-            bit_value: 0,
+            bit_value: 0x8000,
         }
     }
     /// Executes the next step of the compression. Returns the next state.
@@ -100,7 +98,6 @@ impl<'a> Context<'a> {
 
                 // Make the lowest bit in second byte be the next bit to read
                 self.bit_value = (self.bit_value >> 1) | ((second_byte as u16) << 15);
-                self.bit_count += 1;
 
                 let length = self.read_interlaced_elias_gamma(false)? + 1;
                 self.write_bytes(self.last_offset, length, output)?;
@@ -121,13 +118,12 @@ impl<'a> Context<'a> {
     }
 
     fn read_bit(&mut self) -> Result<bool, DecompressError> {
-        if self.bit_count == 0 {
-            self.bit_value = (self.read_byte()? as u16) << 8;
-            self.bit_count = 8;
+        if self.bit_value == 0x8000 {
+            // All bits have been shifted out, only the end marker is left. Get the next byte:
+            self.bit_value = ((self.read_byte()? as u16) << 8) | 0x80;
         }
         let bit = self.bit_value & 0x8000 != 0;
         self.bit_value <<= 1;
-        self.bit_count -= 1;
         Ok(bit)
     }
 
