@@ -7,4 +7,6 @@ pub enum DecompressError {
     ReadFailure(#[from] std::io::Error),
     #[error("Corrupt input: invalid length")]
     InvalidLength,
+    #[error("Corrupt input: invalid offset")]
+    InvalidOffset,
 }

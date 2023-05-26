@@ -94,13 +94,19 @@ impl<'a> Context<'a> {
                     return Ok(State::Done);
                 }
                 let second_byte = self.read_byte()?;
-                self.last_offset = (high << 7) - (second_byte >> 1) as usize;
+                let offset = (high << 7)
+                    .checked_sub((second_byte >> 1) as usize)
+                    .ok_or(DecompressError::InvalidOffset)?;
+                self.last_offset = offset;
 
                 // Make the lowest bit in second byte be the next bit to read
                 self.bit_value = (self.bit_value >> 1) | ((second_byte as u16) << 15);
 
-                let length = self.read_interlaced_elias_gamma(false)? + 1;
-                self.write_bytes(self.last_offset, length, output)?;
+                let length = self
+                    .read_interlaced_elias_gamma(false)?
+                    .checked_add(1)
+                    .ok_or(DecompressError::InvalidLength)?;
+                self.write_bytes(offset, length, output)?;
                 if self.read_bit()? {
                     Ok(State::CopyFromNewOffset)
                 } else {
@@ -141,10 +147,13 @@ impl<'a> Context<'a> {
         length: usize,
         output: &mut Vec<u8>,
     ) -> Result<(), DecompressError> {
+        if offset == 0 {
+            return Err(DecompressError::InvalidOffset);
+        }
         let Some(s) = output.len().checked_sub(offset) else {
             return Err(DecompressError::InvalidLength);
         };
-
+        let length = length.min(self.settings.max_output_size - output.len());
         output.reserve(length);
         for i in 0..length {
             output.push(output[s + i]);
@@ -189,6 +198,8 @@ pub fn decompress_with_settings(
 
 #[cfg(test)]
 mod tests {
+    use std::io::ErrorKind;
+
     use super::*;
 
     #[test]
@@ -198,5 +209,27 @@ mod tests {
         ];
         let result = decompress(&mut source.as_ref()).unwrap();
         assert_eq!(&result, b"ABRA ABRACADABRA");
+    }
+
+    #[test]
+    fn empty_input() {
+        let source: &[u8] = &[];
+        let result = decompress(&mut source.as_ref());
+        let Err(DecompressError::ReadFailure(e)) = result else {
+            panic!("Expected read to fail, got {result:?}");
+        };
+        assert_eq!(e.kind(), ErrorKind::UnexpectedEof);
+    }
+
+    #[test]
+    fn invalid_input_offset_0() {
+        let source = [
+            149, 0, 0, 0, 255, 255, 255, 255, 85, 85, 85, 85, 85, 85, 85, 85, 85, 85, 85, 85, 85,
+            85, 85, 170, 0,
+        ];
+        let result = decompress(&mut source.as_ref());
+        let Err(DecompressError::InvalidOffset) = result else {
+            panic!("Expected InvalidOffset, got {result:?}");
+        };
     }
 }
