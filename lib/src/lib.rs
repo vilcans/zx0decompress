@@ -98,7 +98,7 @@ impl<'a> Context<'a> {
                 let second_byte = self.read_byte()?;
                 let offset = (high << 7)
                     .checked_sub((second_byte >> 1) as usize)
-                    .ok_or(DecompressError::InvalidOffset)?;
+                    .ok_or(DecompressError::InvalidInput)?;
                 self.last_offset = offset;
 
                 // Make the lowest bit in second byte be the next bit to read
@@ -107,7 +107,7 @@ impl<'a> Context<'a> {
                 let length = self
                     .read_interlaced_elias_gamma(false)?
                     .checked_add(1)
-                    .ok_or(DecompressError::InvalidLength)?;
+                    .ok_or(DecompressError::InvalidInput)?;
                 self.write_bytes(offset, length, output)?;
                 if self.read_bit()? {
                     Ok(State::CopyFromNewOffset)
@@ -153,10 +153,10 @@ impl<'a> Context<'a> {
         output: &mut Vec<u8>,
     ) -> Result<(), DecompressError> {
         if offset == 0 {
-            return Err(DecompressError::InvalidOffset);
+            return Err(DecompressError::InvalidInput);
         }
         let Some(s) = output.len().checked_sub(offset) else {
-            return Err(DecompressError::InvalidLength);
+            return Err(DecompressError::InvalidInput);
         };
         let length = length.min(self.settings.max_output_size - output.len());
         output.reserve(length);
@@ -230,7 +230,7 @@ mod tests {
             85, 85, 170, 0,
         ];
         let result = decompress(&mut source.as_ref());
-        let Err(DecompressError::InvalidOffset) = result else {
+        let Err(DecompressError::InvalidInput) = result else {
             panic!("Expected InvalidOffset, got {result:?}");
         };
     }

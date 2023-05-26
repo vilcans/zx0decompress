@@ -20,9 +20,7 @@ fuzz_target!(|data: &[u8]| {
                 );
             }
         }
-        Err(DecompressError::InvalidLength) => {}
-        Err(DecompressError::InvalidOffset) => {}
-        Err(DecompressError::TruncatedInput) => {}
+        Err(DecompressError::TruncatedInput | DecompressError::InvalidInput) => {}
         Err(e) => {
             panic!("Failed: {e:?}");
         }
