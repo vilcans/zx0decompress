@@ -68,3 +68,9 @@ Both of these repos contain a library and command-line application that compress
 ## Testing
 
 In [lib/tests](lib/tests) there are compressed files (compressed with [zx0-rs](https://crates.io/crates/zx0)) and their corresponding uncompressed files. A test case verifies that `zx0decompress` decompresses correctly.
+
+In the [fuzz](fuzz) directory there are fuzz tests that can be run with [cargo-fuzz](https://github.com/rust-fuzz/cargo-fuzz):
+
+```
+cargo fuzz run fuzz_decompress
+```
