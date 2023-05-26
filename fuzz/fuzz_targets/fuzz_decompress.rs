@@ -1,7 +1,6 @@
 #![no_main]
 
 use libfuzzer_sys::fuzz_target;
-use std::io::ErrorKind;
 use zx0decompress::{self, DecompressError, Settings};
 
 fuzz_target!(|data: &[u8]| {
@@ -23,8 +22,9 @@ fuzz_target!(|data: &[u8]| {
         }
         Err(DecompressError::InvalidLength) => {}
         Err(DecompressError::InvalidOffset) => {}
-        Err(DecompressError::ReadFailure(e)) => {
-            assert_eq!(e.kind(), ErrorKind::UnexpectedEof);
+        Err(DecompressError::TruncatedInput) => {}
+        Err(e) => {
+            panic!("Failed: {e:?}");
         }
     }
 });

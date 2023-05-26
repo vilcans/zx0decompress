@@ -121,8 +121,11 @@ impl<'a> Context<'a> {
 
     fn read_byte(&mut self) -> Result<u8, DecompressError> {
         let mut buf = [0u8];
-        self.source.read_exact(&mut buf)?;
-        Ok(buf[0])
+        if self.source.read(&mut buf)? == 0 {
+            Err(DecompressError::TruncatedInput)
+        } else {
+            Ok(buf[0])
+        }
     }
 
     fn read_bit(&mut self) -> Result<bool, DecompressError> {
@@ -200,8 +203,6 @@ pub fn decompress_with_settings(
 
 #[cfg(test)]
 mod tests {
-    use std::io::ErrorKind;
-
     use super::*;
 
     #[test]
@@ -217,10 +218,9 @@ mod tests {
     fn empty_input() {
         let source: &[u8] = &[];
         let result = decompress(&mut source.as_ref());
-        let Err(DecompressError::ReadFailure(e)) = result else {
-            panic!("Expected read to fail, got {result:?}");
+        let Err(DecompressError::TruncatedInput) =  result else {
+            panic!("Unexpected {result:?}");
         };
-        assert_eq!(e.kind(), ErrorKind::UnexpectedEof);
     }
 
     #[test]
