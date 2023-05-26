@@ -74,3 +74,9 @@ In the [fuzz](fuzz) directory there are fuzz tests that can be run with [cargo-f
 ```
 cargo fuzz run fuzz_decompress
 ```
+
+## Credits
+
+This crate made by [Martin Vilcans](https://www.librador.com).
+
+Original ZX0 compression algorithm and C implementation (which served as a reference for the Rust implementation) by [Einar Saukas](https://github.com/einar-saukas).
