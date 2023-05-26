@@ -68,7 +68,9 @@ impl<'a> Context<'a> {
     fn next_step(&mut self, state: State, output: &mut Vec<u8>) -> Result<State, DecompressError> {
         match state {
             State::CopyLiterals => {
-                let length = self.read_interlaced_elias_gamma(false)?;
+                let length = self
+                    .read_interlaced_elias_gamma(false)?
+                    .min(self.settings.max_output_size - output.len());
                 for _ in 0..length {
                     let literal = self.read_byte()?;
                     output.push(literal);
@@ -231,5 +233,34 @@ mod tests {
         let Err(DecompressError::InvalidOffset) = result else {
             panic!("Expected InvalidOffset, got {result:?}");
         };
+    }
+
+    #[test]
+    fn max_output_size_heeded_when_copying_literals() {
+        const MAX: usize = 4;
+        #[rustfmt::skip]
+        let source = [
+            0b01_01_1_1_01,
+            //01_01_1_     = Copy 0b111 (7) literal bytes
+            //        1_   = CopyFromNewOffset
+            //          01 = Bit 7 of length (inverted)
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            0b01_01_01_01, 0b01_01_01_1_0, // inverted bit 6 to 0 of length = 256 (meaning EOF)
+        ];
+        let data = decompress_with_settings(
+            &mut source.as_ref(),
+            Settings {
+                max_output_size: MAX,
+                ..Default::default()
+            },
+        )
+        .unwrap();
+        assert_eq!(data, &[1, 2, 3, 4]);
     }
 }
