@@ -15,7 +15,7 @@ I also implemented a command-line application called [`zx0dec`](https://crates.i
 Add the crate to your project:
 
 ```
-cargo add zxdecompress
+cargo add zx0decompress
 ```
 
 Call `zx0decompress::decompress` with any object that implements [`std::io::Read`](https://doc.rust-lang.org/std/io/trait.Read.html).
