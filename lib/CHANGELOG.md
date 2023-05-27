@@ -5,9 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## 0.1.1 (2023-05-27)
 
 <csr-id-00da0a307c1a9fa005de436dda3dde59747c4e1f/>
+<csr-id-00e82a586345e5a15aa9cfe70f00bd60bd60d0bd/>
 
 ### Other
 
@@ -32,7 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <details><summary>view details</summary>
 
  * **Uncategorized**
-    - Add CHANGELOG.md for lib ([`a665c55`](https://github.com/vilcans/zx0decompress/commit/a665c558ebaeaaea94aaeb7e2096d68f3ed1f114))
+    - Add CHANGELOG.md ([`f9f5747`](https://github.com/vilcans/zx0decompress/commit/f9f5747c73be0a2e0fb663359a51d29e96ee5c00))
     - Correct repository link in Cargo.toml ([`00e82a5`](https://github.com/vilcans/zx0decompress/commit/00e82a586345e5a15aa9cfe70f00bd60bd60d0bd))
     - Split readme into lib and cli ([`5430598`](https://github.com/vilcans/zx0decompress/commit/54305987e63b3d0cf88d4008b5b16f3812c1577b))
     - One single error for all kinds of corrupt input ([`f6dac11`](https://github.com/vilcans/zx0decompress/commit/f6dac11e1222a9c1e8ba74bf170c5d9926a57c74))
