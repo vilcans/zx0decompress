@@ -13,12 +13,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  - <csr-id-00e82a586345e5a15aa9cfe70f00bd60bd60d0bd/> Correct repository link in Cargo.toml
 
+### Bug Fixes
+
+ - <csr-id-0227aa2b7278dce55299e308ab50224478ef75bc/> Explicit zx0decompress version in cli
+   Otherwise cargo publish won't publish zx0dec apparently.
+
 ### Commit Statistics
 
 <csr-read-only-do-not-edit/>
 
- - 9 commits contributed to the release over the course of 3 calendar days.
- - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 11 commits contributed to the release over the course of 3 calendar days.
+ - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 0 issues like '(#ID)' were seen in commit messages
 
 ### Commit Details
@@ -28,6 +33,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <details><summary>view details</summary>
 
  * **Uncategorized**
+    - Explicit zx0decompress version in cli ([`0227aa2`](https://github.com/vilcans/zx0decompress/commit/0227aa2b7278dce55299e308ab50224478ef75bc))
+    - Release zx0decompress v0.1.2, zx0dec v0.1.0 ([`5af1177`](https://github.com/vilcans/zx0decompress/commit/5af1177fa730eb25e248e083ac7d8d29ccde6cad))
     - Release zx0decompress v0.1.1, zx0dec v0.1.0 ([`a9303c0`](https://github.com/vilcans/zx0decompress/commit/a9303c0f7bfd6cd280d3f5cfaffa0bfb790454ea))
     - Add CHANGELOG.md ([`f9f5747`](https://github.com/vilcans/zx0decompress/commit/f9f5747c73be0a2e0fb663359a51d29e96ee5c00))
     - Correct repository link in Cargo.toml ([`00e82a5`](https://github.com/vilcans/zx0decompress/commit/00e82a586345e5a15aa9cfe70f00bd60bd60d0bd))
