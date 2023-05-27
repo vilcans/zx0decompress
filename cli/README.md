@@ -39,7 +39,7 @@ Options:
 
 ## Usage as a library
 
-See [zx0decompressor](https://github.com/vilcans/zx0decompress/tree/master/lib).
+See [zx0decompress](../lib).
 
 ## Links
 
