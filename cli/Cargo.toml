@@ -10,4 +10,4 @@ repository = "https://github.com/vilcans/zx0decompress"
 
 [dependencies]
 clap = { version = "4.3.0", features = ["derive"] }
-zx0decompress = { path = "../lib" }
+zx0decompress = { version = "0.1.2", path = "../lib" }
