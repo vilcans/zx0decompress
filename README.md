@@ -12,11 +12,11 @@ For some use cases, like build tools and other utilities, it may still be useful
 
 ## Usage as command-line application
 
-See [zx0dec](https://github.com/vilcans/zx0decompress/tree/master/cli).
+See [zx0dec](cli).
 
 ## Usage as a library
 
-See [zx0decompressor](https://github.com/vilcans/zx0decompress/tree/master/lib).
+See [zx0decompress](lib).
 
 ## Compression
 

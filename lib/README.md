@@ -43,9 +43,9 @@ assert_eq!(&result, b"ABRA ABRACADABRA");
 
 ## Testing
 
-In [lib/tests](lib/tests) there are compressed files (compressed with [zx0-rs](https://crates.io/crates/zx0)) and their corresponding uncompressed files. A test case verifies that `zx0decompress` decompresses correctly.
+In [lib/tests](tests) there are compressed files (compressed with [zx0-rs](https://crates.io/crates/zx0)) and their corresponding uncompressed files. A test case verifies that `zx0decompress` decompresses correctly.
 
-In the [fuzz](fuzz) directory there are fuzz tests that can be run with [cargo-fuzz](https://github.com/rust-fuzz/cargo-fuzz):
+In the [fuzz](../fuzz) directory there are fuzz tests that can be run with [cargo-fuzz](https://github.com/rust-fuzz/cargo-fuzz):
 
 ```
 cargo fuzz run fuzz_decompress
