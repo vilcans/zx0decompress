@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.1.2 (2023-05-27)
+
+### Bug Fixes
+
+ - <csr-id-4dc5c75e87c755e46749a40b750b3f1105d455d0/> Intra-repo links in readme files
+   I think these links will now work in a checked out repo,
+   on Github, as well as on crates.io.
+ - <csr-id-d637f4e663ae04cb2f3a16867ac7e5e1ab80adb4/> correct `cargo add` command in readme
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 2 commits contributed to the release.
+ - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 0 issues like '(#ID)' were seen in commit messages
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **Uncategorized**
+    - Intra-repo links in readme files ([`4dc5c75`](https://github.com/vilcans/zx0decompress/commit/4dc5c75e87c755e46749a40b750b3f1105d455d0))
+    - Correct `cargo add` command in readme ([`d637f4e`](https://github.com/vilcans/zx0decompress/commit/d637f4e663ae04cb2f3a16867ac7e5e1ab80adb4))
+</details>
+
 ## 0.1.1 (2023-05-27)
 
 <csr-id-00da0a307c1a9fa005de436dda3dde59747c4e1f/>
@@ -22,7 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 16 commits contributed to the release over the course of 3 calendar days.
+ - 17 commits contributed to the release over the course of 3 calendar days.
  - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 0 issues like '(#ID)' were seen in commit messages
 
@@ -33,6 +61,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <details><summary>view details</summary>
 
  * **Uncategorized**
+    - Release zx0decompress v0.1.1, zx0dec v0.1.0 ([`a9303c0`](https://github.com/vilcans/zx0decompress/commit/a9303c0f7bfd6cd280d3f5cfaffa0bfb790454ea))
     - Add CHANGELOG.md ([`f9f5747`](https://github.com/vilcans/zx0decompress/commit/f9f5747c73be0a2e0fb663359a51d29e96ee5c00))
     - Correct repository link in Cargo.toml ([`00e82a5`](https://github.com/vilcans/zx0decompress/commit/00e82a586345e5a15aa9cfe70f00bd60bd60d0bd))
     - Split readme into lib and cli ([`5430598`](https://github.com/vilcans/zx0decompress/commit/54305987e63b3d0cf88d4008b5b16f3812c1577b))
