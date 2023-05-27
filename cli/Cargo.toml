@@ -6,7 +6,7 @@ license = "BSD-3-Clause"
 categories = ["compression", "command-line-utilities"]
 keywords = ["zx0", "8-bit", "z80"]
 description = "Command-line tool to decompress files in the ZX0 compression format commonly used on 8 bit platforms"
-repository = "https://github.com/vilcans/zx0decompress/cli"
+repository = "https://github.com/vilcans/zx0decompress"
 
 [dependencies]
 clap = { version = "4.3.0", features = ["derive"] }

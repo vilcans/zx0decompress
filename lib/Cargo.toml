@@ -6,7 +6,7 @@ license = "BSD-3-Clause"
 categories = ["compression"]
 keywords = ["zx0", "8-bit", "z80"]
 description = "Decompress files in the ZX0 compression format commonly used on 8 bit platforms"
-repository = "https://github.com/vilcans/zx0decompress/lib"
+repository = "https://github.com/vilcans/zx0decompress"
 
 [dependencies]
 thiserror = "1.0.40"
