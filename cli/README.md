@@ -14,11 +14,10 @@ but as I wanted a Rust library I also implemented an application while I was at 
 
 You need a working Rust environment, which you can install with [Rustup](https://rustup.rs/).
 
-The command-line application is named `zx0dec`.
-Install it by cloning this repo, `cd` into it and run:
+The command-line application is named `zx0dec`. Install it with:
 
 ```sh
-cargo install --path cli
+cargo install zx0dec
 ```
 
 ## Usage
